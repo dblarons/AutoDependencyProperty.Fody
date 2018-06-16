@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata minClientVersion="2.8">
+    <id>AutoDependencyProperty.Fody</id>
+    <version>$version$</version>
+    <title>AutoDependencyProperty.Fody</title>
+    <authors>Robert Važan</authors>
+    <owners>Robert Važan</owners>
+    <developmentDependency>true</developmentDependency>
+    <licenseUrl>http://opensource.org/licenses/BSD-3-Clause</licenseUrl>
+    <projectUrl>https://blog.machinezoo.com/no-more-dependencyproperty-with</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Fody plugin that converts automatic C# property into WPF DependencyProperty during build</description>
+    <tags>Fody WPF XAML DependencyProperty</tags>
+    <dependencies>
+      <dependency id="Fody"/>
+    </dependencies>
+  </metadata>
+</package>
