@@ -4,6 +4,14 @@
 
 https://bitbucket.org/megafinz/autodependencyproperty.fody
 
+It's a Mercurial repo, so none of the original commits were retained here.
+
+## What's different about this repo?
+
+- Updated Visual Studio project (`ToolsVersion` 3.0->12.0, `TargetFrameworkVersion` 4.0->4.6.1)
+- Updated Dependencies
+- FodyHelpers is included instead of FodyCecil so that Mono.Cecil is on version 0.10.0.0 instead of 0.9.x.x
+
 ## Overview
 
 Fody plugin that automatically generates DependencyProperty boilerplate from simple C# properties.
