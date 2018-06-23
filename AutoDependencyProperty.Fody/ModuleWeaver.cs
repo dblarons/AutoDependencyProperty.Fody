@@ -5,12 +5,11 @@ using Mono.Cecil.Rocks;
 using Mono.Cecil.Cil;
 using System.Windows;
 using System.Collections.Generic;
+using Fody;
 
-public class ModuleWeaver
-{
-    public ModuleDefinition ModuleDefinition { get; set; }
+public class ModuleWeaver : BaseModuleWeaver {
 
-    public void Execute()
+    public override void Execute()
     {
         var markerDll = Check(() => ModuleDefinition.AssemblyReferences.SingleOrDefault(a => a.Name.ToLowerInvariant() == "AutoDependencyPropertyMarker".ToLowerInvariant()), "find AutoDependencyPropertyMarker reference");
         if (markerDll == null)
@@ -22,7 +21,7 @@ public class ModuleWeaver
         var getValue = CheckImport(() => depObject.Methods.Single(m => m.Name == "GetValue"), "GetValue");
         var setValue = CheckImport(() => depObject.Methods.Single(m => m.Name == "SetValue" && m.Parameters.Count == 2 && m.Parameters[0].ParameterType.Name == "DependencyProperty" && m.Parameters[1].ParameterType.Name == "Object"), "SetValue");
         var depProperty = Check(() => windowsBase.GetType("System.Windows.DependencyProperty"), "load DependencyProperty");
-        var depPropertyRef = Check(() => ModuleDefinition.Import(depProperty), "import DependencyProperty");
+        var depPropertyRef = Check(() => ModuleDefinition.ImportReference(depProperty), "import DependencyProperty");
         var registerSimple = CheckImport(() => depProperty.Methods.Single(m => m.Name == "Register" && m.Parameters.Count == 3), "Register");
         var registerMeta = CheckImport(() => depProperty.Methods.Single(m => m.Name == "Register" && m.Parameters.Count == 4), "Register");
         var presentationDllRef = Check(() => ModuleDefinition.AssemblyReferences.SingleOrDefault(a => a.Name.ToLowerInvariant() == "PresentationFramework".ToLowerInvariant()), "check for PresentationFramework reference");
@@ -66,7 +65,7 @@ public class ModuleWeaver
                             {
                                 if (presentationDllRef == null)
                                 {
-                                    metadataCtor = Check(() => ModuleDefinition.Import(typeof(FrameworkPropertyMetadata).GetConstructor(new[] { typeof(object), typeof(FrameworkPropertyMetadataOptions) })), "directly import FrameworkPropertyMetadata constructor");
+                                    metadataCtor = Check(() => ModuleDefinition.ImportReference(typeof(FrameworkPropertyMetadata).GetConstructor(new[] { typeof(object), typeof(FrameworkPropertyMetadataOptions) })), "directly import FrameworkPropertyMetadata constructor");
                                 }
                                 else
                                 {
@@ -121,6 +120,11 @@ public class ModuleWeaver
         ModuleDefinition.AssemblyReferences.Remove(markerDll);
     }
 
+    public override IEnumerable<string> GetAssembliesForScanning()
+    {
+      yield break;
+    }
+
     ModuleDefinition CheckAssembly(string name, string description = null)
     {
         return Check(() => ModuleDefinition.AssemblyResolver.Resolve(
@@ -130,7 +134,7 @@ public class ModuleWeaver
              select assembly).First()).MainModule, "load " + name + (description != null ? ". " + description: string.Empty));
     }
 
-    MethodReference CheckImport(Func<MethodDefinition> factory, string name) { return Check(() => ModuleDefinition.Import(factory()), "import " + name); }
+    MethodReference CheckImport(Func<MethodDefinition> factory, string name) { return Check(() => ModuleDefinition.ImportReference(factory()), "import " + name); }
     static T Check<T>(Func<T> func, string message)
     {
         try
